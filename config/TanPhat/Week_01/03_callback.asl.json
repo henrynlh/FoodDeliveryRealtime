@@ -1,0 +1,22 @@
+{
+    "Comment": "Week 1 self-callback test. Not the actual order workflow.",
+    "QueryLanguage": "JSONPath",
+    "TimeoutSeconds": 120,
+    "StartAt": "CheckCallbackPermission",
+    "States": {
+        "CheckCallbackPermission": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-foundation-test",
+                "Payload": {
+                    "mode": "callback",
+                    "orderId.$": "$.orderId",
+                    "taskToken.$": "$$.Task.Token"
+                }
+            },
+            "TimeoutSeconds": 60,
+            "End": true
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "Comment": "Week 1 basic execution test only",
+    "QueryLanguage": "JSONPath",
+    "StartAt": "FoundationCheck",
+    "States": {
+        "FoundationCheck": {
+            "Type": "Pass",
+            "Result": {
+                "message": "Week 1 foundation ready"
+            },
+            "ResultPath": "$.foundation",
+            "Next": "Done"
+        },
+        "Done": {
+            "Type": "Succeed"
+        }
+    }
+}
