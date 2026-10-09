@@ -1,0 +1,26 @@
+<!doctype html><html lang="vi"><meta charset="utf-8">
+<title>Kiểm thử WebSocket tuần 1</title>
+<style>body{font:18px serif;max-width:900px;margin:30px auto}input{width:95%;padding:8px}button{margin:10px;padding:8px}pre{white-space:pre-wrap;border:1px solid;padding:12px}</style>
+<h1>Kiểm thử nền tảng TV2</h1>
+<p>Chỉ dùng endpoint thử tuần 1, chưa có xác thực nghiệp vụ.</p>
+<label>Endpoint WSS</label><input id="endpoint" placeholder="wss://API_ID.execute-api.us-east-1.amazonaws.com/dev">
+<button id="connect">Kết nối</button><button id="send" disabled>Gửi ping</button><button id="close" disabled>Ngắt</button><pre id="log"></pre>
+<script>
+let socket; const log=document.getElementById('log');
+const connect=document.getElementById('connect');
+const send=document.getElementById('send');
+const close=document.getElementById('close');
+const write=s=>{log.textContent+=new Date().toISOString()+' '+s+'\n';};
+connect.onclick=()=>{
+ if(socket && socket.readyState<2){write('Đã có kết nối.');return;}
+ const url=document.getElementById('endpoint').value.trim();
+ if(!url.startsWith('wss://')){write('Nhập endpoint wss://');return;}
+ try{socket=new WebSocket(url);}catch(e){write(e.message);return;}
+ socket.onopen=()=>{write('OPEN');send.disabled=false;close.disabled=false;};
+ socket.onmessage=e=>write('RECEIVED '+e.data);
+ socket.onerror=()=>write('ERROR: kiểm tra Console AWS và Logs');
+ socket.onclose=e=>{write('CLOSED '+e.code);send.disabled=true;close.disabled=true;};
+};
+send.onclick=()=>{const msg={action:'ping',requestId:'REQ-W1-'+Date.now()};socket.send(JSON.stringify(msg));write('SENT '+JSON.stringify(msg));};
+close.onclick=()=>socket && socket.close(1000,'week1-test-done');
+</script></html>
