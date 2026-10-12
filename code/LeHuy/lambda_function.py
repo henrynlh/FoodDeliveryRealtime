@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timezone
 import boto3
 
+
 TABLE = os.environ["CONNECTIONS_TABLE"]
 table = boto3.resource("dynamodb").Table(TABLE)
 
