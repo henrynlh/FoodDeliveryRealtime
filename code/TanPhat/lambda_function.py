@@ -3,6 +3,7 @@ import logging
 import os
 import boto3
 
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -14,7 +15,7 @@ def lambda_handler(event, context):
     order_id = event.get("orderId", "TEST-W1-001")
     # Never log the entire event. Callback events include a task token.
     logger.info("foundation mode=%s orderId=%s", mode, order_id)
-
+    
     if mode == "echo":
         return {"ok": True, "mode": mode, "orderId": order_id}
 
