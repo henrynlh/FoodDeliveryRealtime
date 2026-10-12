@@ -1,29 +1,46 @@
-Ứng dụng Giao đồ ăn: Theo dõi trạng thái đơn hàng theo thời gian thực
+# Ứng dụng Giao đồ ăn: Theo dõi trạng thái đơn hàng theo thời gian thực
 
-Thông tin sinh viên & Đồ án
+## Thông tin sinh viên & Đồ án
 
-Môn học: Điện toán đám mây (Cloud Computing) - Đợt 1 (2026 - 2027)
+* **Môn học:** Điện toán đám mây (Cloud Computing)
+* **Giảng viên hướng dẫn:** TS. Huỳnh Xuân Phụng
+* **Nhóm đề tài:** Domain Apps
+* **Nhóm thực hiện:**
+  * Nguyễn Lê Huy - MSSV: 24110221
+  * Trương Tấn Phát - MSSV: 24110298
+* **AWS Region:** `us-east-1` (N. Virginia)
 
-Giảng viên hướng dẫn: ThS. Huỳnh Xuân Phụng
+## Các thành phần chính trong kiến trúc:
 
-Nhóm đề tài: Domain Apps
+1. **Static Web Hosting (Amazon S3):** Lưu trữ mã nguồn giao diện Web Frontend phục vụ khách hàng đặt món và nhân viên giao hàng cập nhật trạng thái.
+2. **Kênh truyền hai chiều (API Gateway WebSocket):** Tiếp nhận yêu cầu từ Web Client và đẩy dữ liệu trạng thái đơn hàng thời gian thực (`@connections`) xuống giao diện.
+3. **Lambda Xử lý yêu cầu (Xác thực & Kiểm tra):** Định tuyến sự kiện kết nối/ngắt kết nối, xác thực yêu cầu, kiểm tra dữ liệu từ DynamoDB và khởi tạo hoặc gửi callback (`SendTaskSuccess`) tới Step Functions.
+4. **State Machine Orchestration (AWS Step Functions Standard):** Điều phối luồng trạng thái đơn hàng (`Đặt hàng` → `Nhận đơn` → `Đang giao` → `Hoàn tất`) với cơ chế Task Token / Chờ callback.
+5. **Lambda Workflow (Đăng ký chờ & Cập nhật):** Được kích hoạt bởi Task trong Step Functions để ghi nhận trạng thái chờ, lưu task token vào DynamoDB và gọi kích hoạt thông báo.
+6. **Lưu trữ dữ liệu (Amazon DynamoDB):** Quản lý tập trung các bảng:
+   * `Orders`: Thông tin chi tiết đơn hàng và trạng thái hiện tại.
+   * `Connections`: Danh sách `connectionId` của WebSocket client đang hoạt động.
+   * `WorkflowTasks`: Lưu trữ task token phục vụ cơ chế resume workflow callback.
+7. **Lambda Thông báo Realtime & SNS:** Đọc danh sách kết nối từ DynamoDB để gửi dữ liệu qua API Gateway WebSocket Management API (`@connections`), đồng thời kích hoạt gửi email/SMS thông báo qua **Amazon SNS Standard**.
 
-Nhóm thực hiện:
+## Kế hoạch 4 tuần
 
-Nguyễn Văn A - MSSV: 24110xxx
+### Tuần 1: Tìm hiểu và dựng nền tảng
+* Thiết kế kiến trúc, mô hình dữ liệu, khởi tạo tài nguyên có gắn tag (`Project`, `Owner`).
+* Kiểm thử nền tảng và lập nhật ký công việc (worklog) cá nhân.
 
-Trần Văn B - MSSV: 24110xxx
+### Tuần 2: Triển khai chức năng
+* Xây dựng chức năng tạo và đọc đơn hàng (DynamoDB, Lambda).
+* Khởi chạy workflow trên AWS Step Functions.
+* Xử lý và lưu trữ callback (Task Token / WebSocket Connection).
+* Cập nhật trạng thái và kiểm thử độc lập từng thành phần.
 
-AWS Region: us-east-1 (N. Virginia)
+### Tuần 3: Tích hợp và bảo mật
+* Xây dựng và liên kết luồng đơn hàng thống nhất (E2E flow).
+* Kiểm tra phân quyền theo chuẩn `LabRole`, thiết lập giám sát bằng Amazon CloudWatch.
+* Tự động hóa cấu hình và triển khai (IaC/Scripts) nếu phù hợp.
 
-Kiến trúc hệ thống Serverless & Luồng dữ liệu (5 Thành phần chính)
-
-Thành phần 1 (State Orchestration): AWS Step Functions điều phối vòng đời đơn hàng theo luồng trạng thái (Đặt hàng → Nhà hàng nhận → Đang giao → Hoàn tất).
-
-Thành phần 2 (Real-time Communication): Amazon API Gateway WebSocket duy trì kết nối hai chiều liên tục với Web client của khách hàng và shipper.
-
-Thành phần 3 (Compute & Business Logic): AWS Lambda (sử dụng IAM LabRole) xử lý logic kết nối WebSocket ($connect, $disconnect), trigger State Machine và đẩy thông báo.
-
-Thành phần 4 (Data Persistence): Amazon DynamoDB lưu trữ chi tiết đơn hàng (OrdersTable) và quản lý danh sách connection ID active (ConnectionsTable).
-
-Thành phần 5 (Notification Service): Amazon SNS gửi cảnh báo / thông báo trạng thái đơn hàng tới khách hàng và đối tác giao hàng.
+### Tuần 4: Kiểm thử và hoàn thiện
+* Kiểm thử toàn bộ hệ thống từ giao diện Web đến dịch vụ AWS.
+* Tổng hợp và tối ưu chi phí, dọn dẹp các tài nguyên không cần thiết.
+* Hoàn thiện báo cáo đồ án và chuẩn bị video demo không quá 10 phút.
