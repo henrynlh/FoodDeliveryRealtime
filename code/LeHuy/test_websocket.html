@@ -22,5 +22,5 @@ connect.onclick=()=>{
  socket.onclose=e=>{write('CLOSED '+e.code);send.disabled=true;close.disabled=true;};
 };
 send.onclick=()=>{const msg={action:'ping',requestId:'REQ-W1-'+Date.now()};socket.send(JSON.stringify(msg));write('SENT '+JSON.stringify(msg));};
-close.onclick=()=>socket && socket.close(1000,'week1-test-done');
+close.onclick=()=>socket && socket.close(1000, 'week1-test-done');
 </script></html>
