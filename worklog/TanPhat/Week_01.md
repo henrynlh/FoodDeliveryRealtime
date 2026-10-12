@@ -1,7 +1,7 @@
 # Nhật kí làm việc tuần 1:
 Người thực hiện: Trương Tấn Phát - 24110298
 
-Thời gian thực hiện: 7-9 tiếng
+Thời gian thực hiện: 6-7 tiếng
 
 
 ## Dựng VPC

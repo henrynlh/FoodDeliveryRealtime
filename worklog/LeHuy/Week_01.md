@@ -1,7 +1,7 @@
 # Nhật ký làm việc tuần 1: 
 Người thực hiện: Nguyễn Lê Huy – 24110221.
 
-Thời gian thực hiện: 8-10 tiếng
+Thời gian thực hiện: 6-7 tiếng
 
 ## Tạo bảng Orders
 - Ngày thực hiện: 07/10/2026.
