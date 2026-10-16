@@ -1,0 +1,17 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><title>FoodDelivery tuần 2 Nhân viên giao hàng</title><style>body{font:17px Georgia,serif;max-width:1000px;margin:30px auto;padding:0 20px}
+input{padding:8px;margin:5px 0;max-width:95%}button{padding:9px;margin:4px}label{display:block}
+pre{border:1px solid #bbb;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.row{display:flex;gap:15px;flex-wrap:wrap}h1{font-size:25px}#log{max-height:350px;overflow:auto}</style>
+ <h1>FoodDelivery tuần 2 – Nhân viên giao hàng</h1><p>Trang thực hành nội bộ. Token phiên thử do backend quản lý, không phải khóa AWS.</p>
+ <label>WebSocket endpoint <input id="endpoint" size="80" placeholder="wss://API_ID.execute-api.us-east-1.amazonaws.com/dev"></label>
+ <label>Token phiên thử <input id="token" type="password" size="60" autocomplete="off"></label>
+ <button onclick="connect()">Kết nối</button><button onclick="disconnect()">Ngắt</button>
+ <button onclick="perform({action:'ping'})">Ping</button><span id="connection">CLOSED</span>
+ <h2>Danh sách đơn thử</h2>
+ <button onclick="listOrders()">Tải trang đầu</button><button id="next" disabled>Trang tiếp theo</button><div id="list"></div><h2>Đơn đang theo dõi</h2><label>Mã đơn <input id="order" size="45"></label>
+ <button onclick="readOrder()">Đọc đơn</button><button onclick="watch()">Theo dõi đơn</button><div class="row"><button id="accept" onclick="transition('ACCEPTED')" disabled>Nhận đơn</button>
+ <button id="deliver" onclick="transition('DELIVERING')" disabled>Bắt đầu giao</button>
+ <button id="complete" onclick="transition('COMPLETED')" disabled>Hoàn tất</button></div>
+ <label><input id="auto" type="checkbox" checked> Kiểm tra bước chờ mỗi 3 giây khi đang chọn đơn</label>
+ <pre id="snapshot">Chưa chọn đơn</pre><h2>Nhật ký thử</h2><pre id="log"></pre>
+ <script src="shared.js"></script></html>
