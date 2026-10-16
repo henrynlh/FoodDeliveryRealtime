@@ -1,0 +1,171 @@
+{
+    "Comment": "FoodDeliveryRealtime - Main Order Lifecycle Workflow (Week 2)",
+    "QueryLanguage": "JSONPath",
+    "StartAt": "PrepareAcceptedTask",
+    "States": {
+        "PrepareAcceptedTask": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "TimeoutSeconds": 300,
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "ACCEPTED",
+                    "taskToken.$": "$$.Task.Token"
+                }
+            },
+            "ResultPath": "$.transitionResult",
+            "Next": "CommitAcceptedTransition",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Timeout"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleTimeout"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleWorkflowError"
+                }
+            ]
+        },
+        "CommitAcceptedTransition": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "ACCEPTED",
+                    "actorId.$": "$.transitionResult.actorId",
+                    "requestId.$": "$.transitionResult.requestId"
+                }
+            },
+            "ResultPath": "$.commitResult",
+            "Next": "PrepareDeliveringTask"
+        },
+        "PrepareDeliveringTask": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "TimeoutSeconds": 300,
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "DELIVERING",
+                    "taskToken.$": "$$.Task.Token"
+                }
+            },
+            "ResultPath": "$.transitionResult",
+            "Next": "CommitDeliveringTransition",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Timeout"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleTimeout"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleWorkflowError"
+                }
+            ]
+        },
+        "CommitDeliveringTransition": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "DELIVERING",
+                    "actorId.$": "$.transitionResult.actorId",
+                    "requestId.$": "$.transitionResult.requestId"
+                }
+            },
+            "ResultPath": "$.commitResult",
+            "Next": "PrepareCompletedTask"
+        },
+        "PrepareCompletedTask": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "TimeoutSeconds": 300,
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "COMPLETED",
+                    "taskToken.$": "$$.Task.Token"
+                }
+            },
+            "ResultPath": "$.transitionResult",
+            "Next": "CommitCompletedTransition",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Timeout"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleTimeout"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.errorInfo",
+                    "Next": "HandleWorkflowError"
+                }
+            ]
+        },
+        "CommitCompletedTransition": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+                "Payload": {
+                    "orderId.$": "$.orderId",
+                    "step": "COMPLETED",
+                    "actorId.$": "$.transitionResult.actorId",
+                    "requestId.$": "$.transitionResult.requestId"
+                }
+            },
+            "ResultPath": "$.commitResult",
+            "Next": "OrderCompletedSucceed"
+        },
+        "OrderCompletedSucceed": {
+            "Type": "Succeed"
+        },
+        "HandleTimeout": {
+            "Type": "Pass",
+            "Result": {
+                "workflowStatus": "TIMED_OUT",
+                "message": "Task waiting exceeded 300 seconds limit"
+            },
+            "ResultPath": "$.workflowError",
+            "Next": "WorkflowFailed"
+        },
+        "HandleWorkflowError": {
+            "Type": "Pass",
+            "Result": {
+                "workflowStatus": "FAILED",
+                "message": "An error occurred during workflow execution"
+            },
+            "ResultPath": "$.workflowError",
+            "Next": "WorkflowFailed"
+        },
+        "WorkflowFailed": {
+            "Type": "Fail",
+            "Cause": "Order workflow terminated abnormally",
+            "Error": "OrderWorkflowError"
+        }
+    }
+}
