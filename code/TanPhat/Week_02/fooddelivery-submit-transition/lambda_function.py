@@ -1,111 +1,304 @@
+
 import os
 import json
 import time
+
 import boto3
 from botocore.exceptions import ClientError
 
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-sfn_client = boto3.client('stepfunctions', region_name='us-east-1')
 
-TASKS_TABLE = os.environ.get('WORKFLOW_TASKS_TABLE', 'fooddelivery-workflow-tasks')
-tasks_table = dynamodb.Table(TASKS_TABLE)
+REGION = "us-east-1"
+
+dynamodb = boto3.resource("dynamodb", region_name=REGION)
+sfn_client = boto3.client("stepfunctions", region_name=REGION)
+
+TABLE_NAME = os.environ.get(
+    "WORKFLOW_TASKS_TABLE",
+    "fooddelivery-workflow-tasks"
+)
+
+tasks_table = dynamodb.Table(TABLE_NAME)
+
+VALID_STATUSES = {"ACCEPTED", "DELIVERING", "COMPLETED"}
+
+
+def error_response(code, message):
+    return {
+        "ok": False,
+        "errorCode": code,
+        "message": message
+    }
+
 
 def lambda_handler(event, context):
-    """
-    Task A4: Tiếp nhận chuyển trạng thái, claim taskToken và gửi SendTaskSuccess
-    """
-    print(f"Submit transition request: {json.dumps(event)}")
-    
-    order_id = event.get('orderId')
-    target_status = event.get('targetStatus')
-    actor_id = event.get('actorId', 'DRIVER-01')
-    request_id = event.get('requestId', f"req-{int(time.time())}")
-    
-    if not order_id or not target_status:
-        return {
-            "ok": False,
-            "errorCode": "VALIDATION_ERROR",
-            "message": "Missing orderId or targetStatus"
-        }
-        
-    try:
-        # 1. Đọc task hiện tại từ DynamoDB
-        response = tasks_table.get_item(
-            Key={'orderId': order_id, 'step': target_status}
+    if not isinstance(event, dict):
+        return error_response(
+            "VALIDATION_ERROR",
+            "Event must be a JSON object."
         )
-        task_item = response.get('Item')
-        
-        if not task_item:
-            return {
-                "ok": False,
-                "errorCode": "NOT_READY",
-                "message": f"Task for step {target_status} is not ready yet."
-            }
-            
-        task_token = task_item.get('taskToken')
-        current_state = task_item.get('taskState')
-        
-        # 2. Xử lý Idempotency (gửi lại cùng requestId)
-        if current_state == 'CLAIMED' and task_item.get('requestId') == request_id:
+
+    order_id = event.get("orderId")
+    target_status = event.get("targetStatus")
+    actor_id = event.get("actorId")
+    request_id = event.get("requestId")
+
+    required_values = [
+        order_id,
+        target_status,
+        actor_id,
+        request_id
+    ]
+
+    if any(
+        not isinstance(value, str) or not value.strip()
+        for value in required_values
+    ):
+        return error_response(
+            "VALIDATION_ERROR",
+            "orderId, targetStatus, actorId and requestId are required."
+        )
+
+    if target_status not in VALID_STATUSES:
+        return error_response(
+            "VALIDATION_ERROR",
+            "targetStatus must be ACCEPTED, DELIVERING or COMPLETED."
+        )
+
+    key = {
+        "orderId": order_id,
+        "step": target_status
+    }
+
+    # Chỉ ghi thông tin cần đối chiếu, không ghi taskToken.
+    print(json.dumps({
+        "operation": "submit_transition",
+        "orderId": order_id,
+        "targetStatus": target_status,
+        "actorId": actor_id,
+        "requestId": request_id
+    }))
+
+    # 1. Đọc bước chờ hiện tại.
+    try:
+        response = tasks_table.get_item(
+            Key=key,
+            ConsistentRead=True
+        )
+    except ClientError as exc:
+        print("Read task failed:", exc.response["Error"]["Code"])
+
+        return error_response(
+            "READ_TASK_FAILED",
+            "Cannot read the workflow task."
+        )
+
+    task = response.get("Item")
+
+    if not task:
+        return error_response(
+            "NOT_READY",
+            "The workflow has not prepared this step yet."
+        )
+
+    task_state = task.get("taskState")
+
+    same_request = (
+        task.get("requestId") == request_id
+        and task.get("actorId") == actor_id
+    )
+
+    # 2. Nhận diện yêu cầu đã xử lý hoặc đang xử lý.
+    if task_state == "DONE":
+        if same_request:
             return {
                 "ok": True,
-                "status": "QUEUED",
-                "message": "Request already accepted and processing."
+                "status": "ALREADY_DONE",
+                "orderId": order_id,
+                "step": target_status
             }
-            
-        # 3. Claim task có điều kiện (READY -> CLAIMED) để chống tranh chấp
-        now = int(time.time())
+
+        return error_response(
+            "CONFLICT",
+            "This step has already been completed by another request."
+        )
+
+    if task_state == "CLAIMED":
+        if same_request:
+            return {
+                "ok": True,
+                "status": "PROCESSING",
+                "orderId": order_id,
+                "step": target_status,
+                "message": (
+                    "The request was claimed. Check the workflow "
+                    "and Orders to confirm the result."
+                )
+            }
+
+        return error_response(
+            "CONFLICT",
+            "This step is already claimed by another request."
+        )
+
+    if task_state != "READY":
+        return error_response(
+            "NOT_READY",
+            "This task is not in READY state."
+        )
+
+    task_token = task.get("taskToken")
+    expires_at = task.get("expiresAt")
+    now = int(time.time())
+
+    if not isinstance(task_token, str) or not task_token:
+        return error_response(
+            "INVALID_TASK",
+            "The task has no valid callback token."
+        )
+
+    try:
+        expired = (
+            expires_at is None
+            or int(expires_at) <= now
+        )
+    except (TypeError, ValueError, OverflowError):
+        return error_response(
+            "INVALID_TASK",
+            "The task expiry value is invalid."
+        )
+
+    if expired:
+        return error_response(
+            "TASK_EXPIRED",
+            "The task record has expired. Check the execution."
+        )
+
+    # 3. Chỉ một yêu cầu được chuyển READY sang CLAIMED.
+    try:
         tasks_table.update_item(
-            Key={'orderId': order_id, 'step': target_status},
-            UpdateExpression="SET taskState = :claimed, actorId = :actor, requestId = :req, claimedAt = :now",
-            ConditionExpression="taskState = :ready",
+            Key=key,
+            UpdateExpression=(
+                "SET taskState = :claimed, "
+                "actorId = :actor, "
+                "requestId = :request, "
+                "claimedAt = :now"
+            ),
+            ConditionExpression=(
+                "taskState = :ready "
+                "AND taskToken = :token "
+                "AND expiresAt > :now"
+            ),
             ExpressionAttributeValues={
-                ':claimed': 'CLAIMED',
-                ':ready': 'READY',
-                ':actor': actor_id,
-                ':req': request_id,
-                ':now': now
+                ":claimed": "CLAIMED",
+                ":ready": "READY",
+                ":actor": actor_id,
+                ":request": request_id,
+                ":now": now,
+                ":token": task_token
             }
         )
-        print(f"Task {target_status} for {order_id} claimed successfully by {actor_id}.")
-        
-        # 4. Gửi SendTaskSuccess về Step Functions
-        callback_output = {
-            "orderId": order_id,
-            "step": target_status,
-            "actorId": actor_id,
-            "requestId": request_id
-        }
-        
+    except ClientError as exc:
+        code = exc.response["Error"]["Code"]
+        print("Claim task failed:", code)
+
+        if code == "ConditionalCheckFailedException":
+            return error_response(
+                "CONFLICT",
+                "The task changed, expired or was claimed by another request."
+            )
+
+        return error_response(
+            "CLAIM_FAILED",
+            "Cannot claim the workflow task."
+        )
+
+    # 4. Output callback phải khớp các trường workflow đang đọc.
+    callback_output = {
+        "orderId": order_id,
+        "step": target_status,
+        "actorId": actor_id,
+        "requestId": request_id
+    }
+
+    try:
         sfn_client.send_task_success(
             taskToken=task_token,
             output=json.dumps(callback_output)
         )
-        print("SendTaskSuccess dispatched successfully.")
-        
-        return {
-            "ok": True,
-            "status": "QUEUED",
-            "message": f"Transition to {target_status} accepted."
-        }
-        
-    except ClientError as e:
-        error_code = e.response['Error']['Code']
-        if error_code == 'ConditionalCheckFailedException':
-            print(f"Conflict: Task {target_status} for {order_id} already claimed.")
-            return {
-                "ok": False,
-                "errorCode": "CONFLICT",
-                "message": "Another driver has already claimed this order/step."
-            }
-        return {
-            "ok": False,
-            "errorCode": "INTERNAL_ERROR",
-            "message": str(e)
-        }
-    except Exception as ex:
-        return {
-            "ok": False,
-            "errorCode": "INTERNAL_ERROR",
-            "message": str(ex)
-        }
+
+    except ClientError as exc:
+        code = exc.response["Error"]["Code"]
+        print("SendTaskSuccess failed:", code)
+
+        # Khi bị từ chối quyền rõ ràng, thử trả claim về READY.
+        if code in {
+            "AccessDenied",
+            "AccessDeniedException",
+            "UnauthorizedException"
+        }:
+            try:
+                tasks_table.update_item(
+                    Key=key,
+                    UpdateExpression=(
+                        "SET taskState = :ready "
+                        "REMOVE actorId, requestId, claimedAt"
+                    ),
+                    ConditionExpression=(
+                        "taskState = :claimed "
+                        "AND actorId = :actor "
+                        "AND requestId = :request "
+                        "AND taskToken = :token"
+                    ),
+                    ExpressionAttributeValues={
+                        ":ready": "READY",
+                        ":claimed": "CLAIMED",
+                        ":actor": actor_id,
+                        ":request": request_id,
+                        ":token": task_token
+                    }
+                )
+            except ClientError as release_error:
+                print(
+                    "Release claim failed:",
+                    release_error.response["Error"]["Code"]
+                )
+
+            return error_response(
+                "CALLBACK_DENIED",
+                "Callback permission was denied. Check LabRole permissions."
+            )
+
+        if code in {
+            "TaskTimedOut",
+            "TaskDoesNotExist",
+            "InvalidToken"
+        }:
+            return error_response(
+                "CALLBACK_INVALID",
+                "The callback token is no longer usable. Check the execution."
+            )
+
+        # Chưa chắc callback đã được nhận hay chưa: giữ claim để đối chiếu.
+        return error_response(
+            "CALLBACK_UNCERTAIN",
+            "Check the execution and Orders before retrying."
+        )
+
+    except Exception as exc:
+        # Không trả nguyên lỗi vì có thể chứa dữ liệu nhạy cảm.
+        print("Callback transport error:", type(exc).__name__)
+
+        return error_response(
+            "CALLBACK_UNCERTAIN",
+            "The callback result is uncertain. Check the execution and Orders."
+        )
+
+    return {
+        "ok": True,
+        "status": "QUEUED",
+        "orderId": order_id,
+        "step": target_status,
+        "message": (
+            "Callback sent. Check Orders to confirm the committed state."
+        )
+    }

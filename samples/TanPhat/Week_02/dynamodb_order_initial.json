@@ -1,0 +1,8 @@
+{
+  "orderId": "TEST-W2-PHAT-001",
+  "customerId": "C001",
+  "driverId": null,
+  "status": "PLACED",
+  "version": 1,
+  "workflowStatus": "NOT_STARTED"
+}
