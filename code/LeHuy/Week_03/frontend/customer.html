@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FoodDelivery tuần 3 – Khách hàng</title>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font: 16px Arial, sans-serif;
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+      color: #1f2937;
+      background: #f5f7fa;
+    }
+    h1 { font-size: 27px; }
+    h2 { font-size: 21px; margin-top: 0; }
+    section {
+      background: white;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    label { display: block; margin: 12px 0; }
+    input {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #aeb8c7;
+      border-radius: 5px;
+      font: inherit;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 4px 4px 4px 0;
+      cursor: pointer;
+      border: 1px solid #244da8;
+      border-radius: 5px;
+      background: #2858bd;
+      color: white;
+      font: inherit;
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    pre {
+      border: 1px solid #d8dee8;
+      padding: 12px;
+      background: #f8fafc;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    #log { max-height: 350px; overflow: auto; }
+    #connection {
+      display: inline-block;
+      padding: 8px;
+      font-weight: bold;
+    }
+    .note { color: #526174; line-height: 1.5; }
+  </style>
+</head>
+
+<body data-page="customer">
+  <h1>FoodDelivery tuần 3 – Khách hàng</h1>
+  <p class="note">
+    Phiên thực hành nội bộ. Token phiên thử do backend quản lý,
+    không phải khóa AWS.
+  </p>
+
+  <section>
+    <h2>Kết nối</h2>
+
+    <label>
+      WebSocket endpoint
+      <input
+        id="endpoint"
+        type="url"
+        placeholder="wss://API_ID.execute-api.us-east-1.amazonaws.com/dev"
+        autocomplete="off">
+    </label>
+
+    <label>
+      Token phiên thử
+      <input id="token" type="password" autocomplete="off">
+    </label>
+
+    <button id="connectButton" onclick="connect()">Kết nối</button>
+    <button id="disconnectButton" onclick="disconnect()" disabled>
+      Ngắt
+    </button>
+    <button data-online onclick="perform({action:'ping'})" disabled>
+      Ping
+    </button>
+
+    <span id="connection" role="status">CLOSED</span>
+  </section>
+
+  <section>
+    <h2>Tạo đơn</h2>
+
+    <label>
+      Món ăn
+      <input id="food" value="Cơm gà" maxlength="100">
+    </label>
+
+    <label>
+      Số lượng
+      <input id="quantity" type="number" min="1" max="20" value="1">
+    </label>
+
+    <label>
+      Địa chỉ thử
+      <input id="address" value="Khu ký túc xá A" maxlength="300">
+    </label>
+
+    <button id="createButton" data-online onclick="createOrder()" disabled>
+      Tạo đơn mới
+    </button>
+
+    <button id="retryButton" onclick="retryCreate()" disabled>
+      Gửi lại cùng yêu cầu
+    </button>
+  </section>
+
+  <section>
+    <h2>Đơn đang theo dõi</h2>
+
+    <label>
+      Mã đơn
+      <input id="order" autocomplete="off">
+    </label>
+
+    <button data-online onclick="readOrder()" disabled>Đọc đơn</button>
+    <button data-online onclick="watch()" disabled>Theo dõi đơn</button>
+
+    <p id="progress" role="status">Chưa chọn đơn.</p>
+    <pre id="snapshot">Chưa chọn đơn.</pre>
+  </section>
+
+  <section>
+    <h2>Nhật ký thử</h2>
+    <pre id="log"></pre>
+  </section>
+
+  <script src="shared.js"></script>
+</body>
+</html>
