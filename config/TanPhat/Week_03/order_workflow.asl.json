@@ -1,0 +1,321 @@
+{
+  "Comment": "FoodDeliveryRealtime integrated workflow: TV1 callbacks and commit, TV2 WebSocket broadcast",
+  "QueryLanguage": "JSONPath",
+  "StartAt": "PrepareAcceptedTask",
+  "States": {
+    "PrepareAcceptedTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "TimeoutSeconds": 300,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "ACCEPTED",
+          "taskToken.$": "$$.Task.Token"
+        }
+      },
+      "ResultPath": "$.transitionResult",
+      "Next": "CommitAcceptedTransition",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.Timeout"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleTimeout"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
+    },
+    "CommitAcceptedTransition": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "ACCEPTED",
+          "actorId.$": "$.transitionResult.actorId",
+          "requestId.$": "$.transitionResult.requestId"
+        }
+      },
+      "ResultPath": "$.commitResult",
+      "Next": "BroadcastAccepted"
+    },
+    "PrepareDeliveringTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "TimeoutSeconds": 300,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "DELIVERING",
+          "taskToken.$": "$$.Task.Token"
+        }
+      },
+      "ResultPath": "$.transitionResult",
+      "Next": "CommitDeliveringTransition",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.Timeout"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleTimeout"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
+    },
+    "CommitDeliveringTransition": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "DELIVERING",
+          "actorId.$": "$.transitionResult.actorId",
+          "requestId.$": "$.transitionResult.requestId"
+        }
+      },
+      "ResultPath": "$.commitResult",
+      "Next": "BroadcastDelivering"
+    },
+    "PrepareCompletedTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "TimeoutSeconds": 300,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-prepare-task",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "COMPLETED",
+          "taskToken.$": "$$.Task.Token"
+        }
+      },
+      "ResultPath": "$.transitionResult",
+      "Next": "CommitCompletedTransition",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.Timeout"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleTimeout"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
+    },
+    "CommitCompletedTransition": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-commit-transition",
+        "Payload": {
+          "orderId.$": "$.orderId",
+          "step": "COMPLETED",
+          "actorId.$": "$.transitionResult.actorId",
+          "requestId.$": "$.transitionResult.requestId"
+        }
+      },
+      "ResultPath": "$.commitResult",
+      "Next": "BroadcastCompleted"
+    },
+    "OrderCompletedSucceed": {
+      "Type": "Succeed"
+    },
+    "HandleTimeout": {
+      "Type": "Pass",
+      "Result": {
+        "workflowStatus": "TIMED_OUT",
+        "message": "Task waiting exceeded 300 seconds limit"
+      },
+      "ResultPath": "$.workflowError",
+      "Next": "WorkflowFailed"
+    },
+    "HandleWorkflowError": {
+      "Type": "Pass",
+      "Result": {
+        "workflowStatus": "FAILED",
+        "message": "An error occurred during workflow execution"
+      },
+      "ResultPath": "$.workflowError",
+      "Next": "WorkflowFailed"
+    },
+    "WorkflowFailed": {
+      "Type": "Fail",
+      "Cause": "Order workflow terminated abnormally",
+      "Error": "OrderWorkflowError"
+    },
+    "BroadcastAccepted": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 30,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-broadcast",
+        "Payload": {
+          "orderId.$": "$.orderId"
+        }
+      },
+      "ResultPath": "$.broadcastAccepted",
+      "Next": "CheckBroadcastAccepted",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.notificationError",
+          "Next": "PrepareDeliveringTask"
+        }
+      ]
+    },
+    "CheckBroadcastAccepted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.broadcastAccepted.Payload.ok",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.broadcastAccepted.Payload.ok",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "PrepareDeliveringTask"
+        }
+      ],
+      "Default": "RecordBroadcastProblemAccepted"
+    },
+    "RecordBroadcastProblemAccepted": {
+      "Type": "Pass",
+      "Result": {
+        "step": "ACCEPTED",
+        "message": "Broadcast returned an unsuccessful result; inspect broadcast output and client."
+      },
+      "ResultPath": "$.notificationError",
+      "Next": "PrepareDeliveringTask"
+    },
+    "BroadcastDelivering": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 30,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-broadcast",
+        "Payload": {
+          "orderId.$": "$.orderId"
+        }
+      },
+      "ResultPath": "$.broadcastDelivering",
+      "Next": "CheckBroadcastDelivering",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.notificationError",
+          "Next": "PrepareCompletedTask"
+        }
+      ]
+    },
+    "CheckBroadcastDelivering": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.broadcastDelivering.Payload.ok",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.broadcastDelivering.Payload.ok",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "PrepareCompletedTask"
+        }
+      ],
+      "Default": "RecordBroadcastProblemDelivering"
+    },
+    "RecordBroadcastProblemDelivering": {
+      "Type": "Pass",
+      "Result": {
+        "step": "DELIVERING",
+        "message": "Broadcast returned an unsuccessful result; inspect broadcast output and client."
+      },
+      "ResultPath": "$.notificationError",
+      "Next": "PrepareCompletedTask"
+    },
+    "BroadcastCompleted": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 30,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-broadcast",
+        "Payload": {
+          "orderId.$": "$.orderId"
+        }
+      },
+      "ResultPath": "$.broadcastCompleted",
+      "Next": "CheckBroadcastCompleted",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.notificationError",
+          "Next": "OrderCompletedSucceed"
+        }
+      ]
+    },
+    "CheckBroadcastCompleted": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.broadcastCompleted.Payload.ok",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.broadcastCompleted.Payload.ok",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "OrderCompletedSucceed"
+        }
+      ],
+      "Default": "RecordBroadcastProblemCompleted"
+    },
+    "RecordBroadcastProblemCompleted": {
+      "Type": "Pass",
+      "Result": {
+        "step": "COMPLETED",
+        "message": "Broadcast returned an unsuccessful result; inspect broadcast output and client."
+      },
+      "ResultPath": "$.notificationError",
+      "Next": "OrderCompletedSucceed"
+    }
+  }
+}
