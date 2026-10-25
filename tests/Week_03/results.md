@@ -125,7 +125,7 @@ Log group API Gateway và năm Lambda prepare, submit, commit, dispatcher, broad
 - [Retention API Gateway](../../evidence/LeHuy/Week_03/W3-TV2-05_05_ApiGatewayLogRetention.png).
 - [Execution log thực tế](../../evidence/LeHuy/Week_03/W3-TV2-05_06_ApiGatewayExecutionLog.png).
 
-Ảnh WebSocketLoggingConfigured ghi nhận cấu hình trung gian Errors only. INFO là giá trị cuối theo lần đối chiếu CLI do TV2 cung cấp, không suy ra từ ảnh trung gian.
+Ảnh WebSocketLoggingConfigured thể hiện bước cấu hình trung gian Errors only. Giá trị cuối INFO được TV2 xác nhận qua CLI.
 
 ### 4.6. Nguyên nhân timeout và kiểm thử bản sửa
 
@@ -144,19 +144,19 @@ Trên đơn mới `ORD-381e33d0155909969f8f2d98`, không nhận đơn và chờ 
 ## 5. Giới hạn và thông tin bàn giao
 
 - TC06 sau sửa mới kiểm thử timeout tại PrepareAcceptedTask trên đơn mới; chưa kiểm thử riêng lỗi commit hoặc timeout tại cả ba bước chờ.
-- Yêu cầu đến trễ và các ca backend khác được dẫn theo worklog/minh chứng TV1; không tự mở rộng kết luận từ ca TV2.
+- Kết quả yêu cầu đến trễ và các ca backend khác được tổng hợp theo worklog và minh chứng TV1.
 - Hồi quy đơn ORD-dcba07009952a36dee9e01f4 diễn ra trước PersistWorkflowFailure. Chưa có lần hồi quy toàn luồng thành công sau bản sửa này.
 - TC03 có polling đang bật; TC09 mô phỏng xử lý render tại frontend.
 - Kết luận broadcast dựa trên danh tính phiên, ảnh giao diện và log tổng hợp; sent/skipped/gone không xác định trực tiếp kết nối nào bị bỏ qua.
-- Phiên C001/C002/D001/D002 là phiên demo. INVALID_SESSION được xác nhận qua log, không tự suy ra HTTP status chưa quan sát.
+- C001/C002/D001/D002 là các phiên demo. Kết quả thiếu/sai token được xác nhận bằng log INVALID_SESSION; HTTP status tương ứng chưa được ghi nhận.
 - Logging và quyền vận hành được kiểm tra trong phạm vi nêu tại TC13; không phải kiểm toán IAM đầy đủ.
-- Chưa xác định SHA chính xác của bản code triển khai. Phiên bản được mô tả theo các tệp Week_03 và lần kiểm thử: frontend/dispatcher cho các ca 24–25/10; workflow TV2 đồng bộ từ CloudShell cho đơn timeout mới. SHA commit bàn giao không được coi là bằng chứng tự động về SHA đã triển khai.
+- Chưa xác định SHA chính xác của phiên bản đã triển khai. Hồ sơ xác định phiên bản theo các tệp Week_03 và lần kiểm thử: frontend/dispatcher cho các ca ngày 24–25/10; workflow TV2 đồng bộ từ CloudShell cho ca timeout sau sửa.
 - Thời gian làm việc tuần 3: chưa tổng hợp.
-- Tài nguyên được giữ lại tại thời điểm kiểm thử; không ghi nhận đã End Lab hoặc đã xóa tài nguyên.
-- Budget ngày 25/10/2026 hiển thị Used $0 of $50 cho toàn Learner Lab. Ảnh bổ sung hiển thị thời gian tích lũy 18:35:00 (1115 phút); số TV2 cung cấp trước đó là 18:31:00 (1111 phút). Không dùng các số này làm giờ làm tuần 3. Chi phí riêng tuần 3: chưa có số liệu tách riêng. $0 hiển thị không chứng minh hệ thống không phát sinh chi phí; No running instance không có nghĩa Lambda/API/DynamoDB đã dừng.
+- Tài nguyên được giữ lại tại thời điểm kiểm thử.
+- Ngày 25/10/2026, Learner Lab hiển thị Used $0 of $50 và thời gian tích lũy 18:35:00 (1115 phút). Đây là số liệu toàn lab, không phải chi phí hoặc giờ làm riêng tuần 3. Chi phí tuần 3 chưa có số liệu tách riêng. Thông tin No running instance chỉ phản ánh instance, không xác nhận Lambda, API Gateway hoặc DynamoDB đã dừng.
 - [Ảnh budget toàn lab](../../evidence/LeHuy/Week_03/W3-TV2-07_01_LabBudget.png).
-- [Cấu hình biến môi trường dispatcher](../../evidence/LeHuy/Week_03/W3-TV2-01_01_DispatcherEnvironment.png) đã che kín giá trị SESSION_TOKENS_JSON bằng khối đen đặc trước khi đưa vào bộ minh chứng. Chỉ vùng token được sửa; các pixel bên ngoài giữ nguyên.
+- [Cấu hình biến môi trường dispatcher](../../evidence/LeHuy/Week_03/W3-TV2-01_01_DispatcherEnvironment.png) đã che kín giá trị SESSION_TOKENS_JSON; phần cấu hình còn lại giữ nguyên.
 
 ## 6. Kết luận
 
-Các ca có kết quả xác nhận luồng nghiệp vụ, realtime, reconnect, version cũ và phân quyền trong phạm vi đã thử. Sau sửa workflow, kiểm thử trên đơn mới xác nhận trạng thái timeout được lưu vào Orders trước khi execution kết thúc tại state Fail. Logging, retention và quyền vận hành đã được đối chiếu theo TC13. Các giới hạn về phạm vi kiểm thử, giờ làm và phiên bản triển khai được giữ rõ ở mục 5; không tuyên bố đã kiểm thử mọi nhánh hoặc mọi quyền IAM.
+Các ca có kết quả xác nhận luồng nghiệp vụ, realtime, reconnect, version cũ và phân quyền trong phạm vi đã thử. Sau sửa workflow, kiểm thử trên đơn mới xác nhận trạng thái timeout được lưu vào Orders trước khi execution kết thúc tại state Fail. Logging, retention và quyền vận hành đã được đối chiếu theo TC13. Phạm vi kiểm thử, thông tin bàn giao chưa xác định và các giới hạn được trình bày tại mục 5.
