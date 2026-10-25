@@ -47,7 +47,16 @@
         }
       },
       "ResultPath": "$.commitResult",
-      "Next": "BroadcastAccepted"
+      "Next": "BroadcastAccepted",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
     },
     "PrepareDeliveringTask": {
       "Type": "Task",
@@ -93,7 +102,16 @@
         }
       },
       "ResultPath": "$.commitResult",
-      "Next": "BroadcastDelivering"
+      "Next": "BroadcastDelivering",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
     },
     "PrepareCompletedTask": {
       "Type": "Task",
@@ -139,7 +157,16 @@
         }
       },
       "ResultPath": "$.commitResult",
-      "Next": "BroadcastCompleted"
+      "Next": "BroadcastCompleted",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorInfo",
+          "Next": "HandleWorkflowError"
+        }
+      ]
     },
     "OrderCompletedSucceed": {
       "Type": "Succeed"
@@ -151,7 +178,7 @@
         "message": "Task waiting exceeded 300 seconds limit"
       },
       "ResultPath": "$.workflowError",
-      "Next": "WorkflowFailed"
+      "Next": "PersistWorkflowFailure"
     },
     "HandleWorkflowError": {
       "Type": "Pass",
@@ -160,7 +187,7 @@
         "message": "An error occurred during workflow execution"
       },
       "ResultPath": "$.workflowError",
-      "Next": "WorkflowFailed"
+      "Next": "PersistWorkflowFailure"
     },
     "WorkflowFailed": {
       "Type": "Fail",
@@ -316,6 +343,41 @@
       },
       "ResultPath": "$.notificationError",
       "Next": "OrderCompletedSucceed"
+    },
+    "PersistWorkflowFailure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "TimeoutSeconds": 20,
+      "Parameters": {
+        "TableName": "fooddelivery-orders",
+        "Key": {
+          "orderId": {
+            "S.$": "$.orderId"
+          }
+        },
+        "UpdateExpression": "SET #wf = :wf, workflowEndedAt = :ended",
+        "ConditionExpression": "attribute_exists(orderId) AND #status <> :completed AND (attribute_not_exists(executionArn) OR executionArn = :execution)",
+        "ExpressionAttributeNames": {
+          "#wf": "workflowStatus",
+          "#status": "status"
+        },
+        "ExpressionAttributeValues": {
+          ":wf": {
+            "S.$": "$.workflowError.workflowStatus"
+          },
+          ":ended": {
+            "S.$": "$$.State.EnteredTime"
+          },
+          ":completed": {
+            "S": "COMPLETED"
+          },
+          ":execution": {
+            "S.$": "$$.Execution.Id"
+          }
+        }
+      },
+      "ResultPath": null,
+      "Next": "WorkflowFailed"
     }
   }
 }
