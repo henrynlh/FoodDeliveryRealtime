@@ -141,8 +141,13 @@ def handle_action(body, actor, cid):
             if order['status'] != before[step] or order['version'] != version:
                 raise APIError('CONFLICT')
         # Adapter for TV1 submit deployed on 16 October: actorId, status/errorCode.
-        event = {'orderId': oid, 'targetStatus': step,
-                 'actorId': actor['id'], 'requestId': request}
+        event = {
+            'orderId': oid,
+            'targetStatus': step,
+            'actorId': actor['id'],
+            'requestId': request,
+            'expectedVersion': version
+        }
         name = os.environ.get('SUBMIT_LAMBDA_ARN', '')
         if not name:
             raise APIError('CALLBACK_NOT_CONFIGURED')
