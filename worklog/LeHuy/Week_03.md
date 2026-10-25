@@ -425,10 +425,10 @@ Lưu ý: Đây là kiểm thử mô phỏng xử lý hiển thị trên trình d
 ### W3-TV2-01 — Đồng bộ cấu hình và adapter
 
 - Ngày đối chiếu: 25/10/2026.
-- Dispatcher sử dụng ORDERS_TABLE, CONNECTIONS_TABLE, TASKS_TABLE, STATE_MACHINE_ARN, SUBMIT_LAMBDA_ARN và SESSION_TOKENS_JSON. Chỉ mô tả mục đích phiên demo, không ghi token thật vào tài liệu.
+- Dispatcher sử dụng ORDERS_TABLE, CONNECTIONS_TABLE, TASKS_TABLE, STATE_MACHINE_ARN, SUBMIT_LAMBDA_ARN và SESSION_TOKENS_JSON. Giá trị token phiên demo được giữ ngoài tài liệu.
 - Adapter orders_api.py chuyển tiếp expectedVersion cùng orderId, targetStatus, requestId; actorId lấy từ danh tính do backend quản lý.
 - Broadcast sử dụng ORDERS_TABLE, CONNECTIONS_TABLE, TASKS_TABLE và WS_ENDPOINT_URL. WORKFLOW_TASKS_TABLE của TV1 và TASKS_TABLE của TV2 đều trỏ fooddelivery-workflow-tasks.
-- Ảnh cấu hình dispatcher đã được che kín giá trị SESSION_TOKENS_JSON bằng khối đen đặc; kiểm tra xác nhận các pixel bên ngoài vùng che giữ nguyên. Ảnh mã nguồn local không tự chứng minh mã trên AWS khớp hoàn toàn repository.
+- Giá trị SESSION_TOKENS_JSON trong ảnh cấu hình dispatcher đã được che kín; phần cấu hình còn lại giữ nguyên. Chưa xác nhận đầy đủ sự trùng khớp giữa mã trong repository và phiên bản triển khai trên AWS.
 
 #### Minh chứng
 
@@ -498,13 +498,13 @@ Lưu ý: Đây là kiểm thử mô phỏng xử lý hiển thị trên trình d
 ### W3-TV2-07 — Tài nguyên, budget và bàn giao
 
 - Ngày kiểm tra: 25/10/2026.
-- Learner Lab hiển thị Used $0 of $50. Đây là số liệu toàn lab, không phải chi phí riêng tuần 3; không suy ra hệ thống không phát sinh chi phí từ số $0 hiển thị.
-- Số liệu TV2 cung cấp trước ảnh bổ sung: thời gian lab tích lũy 18:31:00 (1111 phút). Ảnh budget mới hiển thị 18:35:00 (1115 phút); hai số liệu được giữ rõ nguồn, không ghi ảnh mới là 18:31:00.
+- Learner Lab hiển thị Used $0 of $50. Số liệu áp dụng cho toàn lab và chưa đủ để xác định chi phí riêng của hệ thống trong tuần 3.
+- Ảnh budget ghi nhận thời gian lab tích lũy 18:35:00 (1115 phút). Đây là thời gian sử dụng toàn lab, không phải thời gian làm việc riêng tuần 3.
 - Thời gian làm việc tuần 3: chưa tổng hợp.
-- Chi phí riêng tuần 3: chưa có số liệu tách riêng. Không dùng thời gian lab tích lũy làm giờ làm tuần 3.
-- No running instance chỉ phản ánh thông tin instance trên trang lab; không có nghĩa Lambda/API/DynamoDB đã dừng. Tài nguyên được giữ lại tại thời điểm kiểm thử, không ghi nhận đã End Lab hoặc đã xóa tài nguyên.
-- Mã/config được bàn giao theo đường dẫn Week_03 và các lần thử nêu trên. Chưa xác định SHA chính xác của code đã triển khai; SHA commit bàn giao không tự chứng minh SHA đã chạy trên AWS.
-- Hỗ trợ AI trong lần hoàn thiện hồ sơ: đối chiếu file, rà soát nội dung, liên kết và tạo commit local; không chạy lại kiểm thử hoặc thay đổi tài nguyên AWS.
+- Chi phí riêng tuần 3: chưa có số liệu tách riêng.
+- Trang lab hiển thị No running instance; thông tin này chỉ phản ánh instance, không xác nhận Lambda, API Gateway hoặc DynamoDB đã dừng. Các tài nguyên được giữ lại tại thời điểm kiểm thử.
+- Mã nguồn và cấu hình bàn giao được lưu trong các thư mục Week_03, gắn với những lần kiểm thử nêu trên. Chưa xác định SHA chính xác của phiên bản đã triển khai trên AWS.
+- AI hỗ trợ đối chiếu tệp, biên tập tài liệu, kiểm tra liên kết và tạo commit. Các kết quả AWS trong hồ sơ do thành viên thực hiện và cung cấp; quá trình biên tập không chạy lại kiểm thử hoặc thay đổi tài nguyên AWS.
 
 #### Minh chứng và tài liệu
 
@@ -514,13 +514,13 @@ Lưu ý: Đây là kiểm thử mô phỏng xử lý hiển thị trên trình d
 
 ## 2. Tổng kết và giới hạn
 
-Đã có kết quả giao diện, realtime, reconnect, phân quyền, xử lý version cũ, logging và timeout sau sửa trong phạm vi được mô tả. Hồi quy thành công sau cập nhật dispatcher diễn ra trước PersistWorkflowFailure; chưa chạy toàn luồng thành công sau bản sửa workflow, chưa kiểm thử riêng lỗi commit hoặc timeout tại cả ba bước. Polling còn bật trong ca CONFLICT. Các ca backend được dẫn theo hồ sơ TV1, không tự mở rộng kết luận.
+Đã có kết quả giao diện, realtime, reconnect, phân quyền, xử lý version cũ, logging và timeout sau sửa trong phạm vi được mô tả. Hồi quy thành công sau cập nhật dispatcher diễn ra trước PersistWorkflowFailure; chưa chạy toàn luồng thành công sau bản sửa workflow, chưa kiểm thử riêng lỗi commit hoặc timeout tại cả ba bước. Polling còn bật trong ca CONFLICT. Kết quả các ca backend được tổng hợp theo phạm vi kiểm thử trong hồ sơ TV1.
 
-Thời gian làm việc thực tế và SHA code triển khai chưa xác định được giữ rõ trạng thái, không thay bằng số giờ lab hoặc một SHA bất kỳ.
+Thời gian làm việc tuần 3 chưa được tổng hợp. SHA chính xác của phiên bản triển khai trên AWS chưa được xác định.
 
-## 3. Commit bàn giao local
+## 3. Các commit bàn giao
 
-Các SHA dưới đây đã tồn tại khi hoàn thiện worklog, chưa push. Đây là commit bàn giao file, không được tự coi là SHA của mã đã triển khai trên AWS.
+Các commit dưới đây lưu mã nguồn, cấu hình, minh chứng và tài liệu bàn giao trong repository. Bảng này ghi nhận phiên bản hồ sơ, không xác nhận SHA của mã đã triển khai trên AWS.
 
 | Tệp | SHA commit bàn giao |
 | --- | --- |
@@ -529,5 +529,5 @@ Các SHA dưới đây đã tồn tại khi hoàn thiện worklog, chưa push. �
 | `evidence/LeHuy/Week_03/W3-TV2-05_06_ApiGatewayExecutionLog.png` | `ac4377c21fecdc168d65acd5f3a780456ed44cf1` |
 | `evidence/LeHuy/Week_03/W3-TV2-06_10_TimeoutOrderPersisted.png` | `ac4377c21fecdc168d65acd5f3a780456ed44cf1` |
 | `evidence/LeHuy/Week_03/W3-TV2-07_01_LabBudget.png` | `ac4377c21fecdc168d65acd5f3a780456ed44cf1` |
-| `tests/Week_03/results.md` | `d05ee9bdb49d2113fbeea9b7d4f5ac734066373d` |
-| `design/Week_03/deployment.md` | `31bf64fe15d3843b75427855ec47f3151d300e65` |
+| `tests/Week_03/results.md` | `e046502ff371252c3f55bae6d19a944461848139` |
+| `design/Week_03/deployment.md` | `4f4eb349da6ac37c8b81160aa8a3fb99911460f8` |
