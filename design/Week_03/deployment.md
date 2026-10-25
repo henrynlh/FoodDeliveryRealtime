@@ -385,7 +385,7 @@ Cấu hình ghi nhận ngày 25/10/2026:
 | Log group API Gateway | `/aws/apigateway/lob1j5l21i/dev` |
 | Retention | `Never expire` trên API Gateway và năm Lambda tuần 3 |
 
-Năm Lambda gồm prepare-task, submit-transition, commit-transition, ws-dispatcher và broadcast. Execution log API Gateway ghi request route `$default`, gọi integration và phản hồi status `200`. Ảnh WebSocketLoggingConfigured thể hiện bước cấu hình trung gian Errors only; giá trị INFO cuối cùng được ghi theo lần kiểm tra/cập nhật CLI do TV2 báo cáo, không suy ra INFO từ ảnh trung gian đó.
+Năm Lambda gồm prepare-task, submit-transition, commit-transition, ws-dispatcher và broadcast. Execution log API Gateway ghi request route `$default`, gọi integration và phản hồi status `200`. Ảnh WebSocketLoggingConfigured thể hiện bước cấu hình trung gian Errors only; giá trị cuối INFO được TV2 xác nhận qua CLI.
 
 Quyền thực tế đã dùng thành công: đọc/cập nhật cấu hình logging, xem log groups/events và cập nhật workflow. Kết quả này xác nhận phạm vi vận hành đã thực hiện, không phải kiểm toán mọi quyền IAM; chưa kiểm thử quyền sửa policy.
 
@@ -397,7 +397,7 @@ Minh chứng:
 
 ### 4.7. Lưu trạng thái thất bại và kiểm thử timeout
 
-Bản [workflow TV2](../../config/LeHuy/Week_03/order_workflow_realtime.asl.json) được đồng bộ nguyên nội dung từ `Downloads/workflow-fixed-week3.json`, bản tải từ CloudShell sau sửa và triển khai theo xác nhận của TV2.
+Bản [workflow TV2](../../config/LeHuy/Week_03/order_workflow_realtime.asl.json) được đồng bộ từ `workflow-fixed-week3.json` do TV2 tải từ CloudShell sau khi sửa và triển khai.
 
 - HandleTimeout ghi `workflowError.workflowStatus=TIMED_OUT`; HandleWorkflowError ghi `workflowError.workflowStatus=FAILED`.
 - Cả hai chuyển sang PersistWorkflowFailure, gọi `arn:aws:states:::dynamodb:updateItem` trên `fooddelivery-orders` để lưu `workflowStatus` và `workflowEndedAt`.
@@ -432,7 +432,7 @@ evidence/LeHuy/Week_03/
 
 | Tên ảnh | Nội dung minh chứng |
 | --- | --- |
-| `W3-TV2-01_01_DispatcherEnvironment.png` | Cấu hình biến môi trường dispatcher; đã che kín giá trị SESSION_TOKENS_JSON, giữ nguyên các pixel ngoài vùng che. |
+| `W3-TV2-01_01_DispatcherEnvironment.png` | Cấu hình biến môi trường dispatcher; giá trị SESSION_TOKENS_JSON đã được che kín. |
 | `W3-TV2-01_02_ExpectedVersionForwarded.png` | Mã nguồn adapter chuyển tiếp `expectedVersion`. |
 | `W3-TV2-01_03_BroadcastEnvironment.png` | Bốn biến môi trường của broadcast. |
 | `W3-TV2-01_04_CustomerAfterDeploy.png` | Khách hàng nhận cập nhật đến COMPLETED, version 4. |
