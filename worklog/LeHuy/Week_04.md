@@ -310,3 +310,13 @@ hoặc thông báo luôn được giao đúng một lần.
 - [Tasks khi chờ bắt đầu giao hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_06B_TimeoutTasks.png).
 - [Orders khi chờ hoàn tất hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_05C_TimeoutOrder.png).
 - [Tasks khi chờ hoàn tất hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_06C_TimeoutTasks.png).
+
+### Ghi nhận ngân sách môi trường kiểm thử
+
+- Ngày ghi nhận: 01/11/2026.
+- Tài khoản AWS: 165662523632.
+- Region: us-east-1.
+- AWS Academy Learner Lab hiển thị: Used $0 of $50.
+- Đây là số liệu sử dụng ngân sách toàn lab được hiển thị tại thời điểm chụp. Chưa có số liệu tách riêng cho dự án hoặc tuần 4, vì vậy không kết luận chi phí thực tế của dự án bằng 0.
+- Thời gian lab tích lũy hiển thị 23 giờ 39 phút, không dùng làm giờ làm việc cá nhân.
+- Minh chứng: [Ngân sách Learner Lab](../../evidence/LeHuy/Week_04/W4-TV2-07_01_LabBudget.png).
