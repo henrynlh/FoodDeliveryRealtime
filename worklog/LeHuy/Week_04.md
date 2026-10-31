@@ -262,3 +262,51 @@ hoặc thông báo luôn được giao đúng một lần.
 - [Liên kết integration request ID](../../evidence/LeHuy/Week_04/W4-TV2-05_02_ApiGatewayExecutionLog.png).
 - [Route và response status](../../evidence/LeHuy/Week_04/W4-TV2-05_03_ApiGatewayRouteAndStatus.png).
 - [Kết quả broadcast](../../evidence/LeHuy/Week_04/W4-TV2-05_04_BroadcastLog.png).
+
+### Kiểm thử bổ sung phần backend do TV1 phụ trách
+
+- Ngày thực hiện: 01/11/2026.
+- Người thực hiện: Nguyễn Lê Huy — TV2 — 24110221.
+- Thành phần đối chiếu: backend do Trương Tấn Phát phụ trách.
+- Môi trường: AWS us-east-1, tài khoản 165662523632.
+- Minh chứng được lưu trong thư mục TV1 để nhóm theo phần việc backend.
+
+#### Kiểm thử hai tài xế tranh nhận đơn
+
+- Mã kiểm thử: W4-TC07.
+- Mã đơn: `ORD-87610c608da45f2e46989b4a`.
+- Dùng script `tests/Week_04/race_accept.py` gửi hai yêu cầu nhận cùng đơn, cùng expectedVersion 1, từ hai phiên D001 và D002.
+- D001 bị từ chối với `CONFLICT`.
+- D002 nhận kết quả `QUEUED`.
+- Đối chiếu Orders: status ACCEPTED, version 2, driverId D002.
+- Đối chiếu task ACCEPTED: taskState DONE, actorId D002, committedVersion 2.
+- Đơn sau đó hết thời gian chờ bắt đầu giao và có workflowStatus TIMED_OUT. Trạng thái nghiệp vụ và version vẫn giữ ACCEPTED, version 2.
+- Kết luận: Đạt trong lần thử này. Chỉ D002 nhận được đơn, version chỉ tăng một lần.
+
+#### Minh chứng
+
+- [Phản hồi D001](../../evidence/TanPhat/Week_04/W4-TV1-04_05_RaceRequestsResponses.png).
+- [Phản hồi D002](../../evidence/TanPhat/Week_04/W4-TV1-04_06_RaceD002Response.png).
+- [Orders sau tranh nhận](../../evidence/TanPhat/Week_04/W4-TV1-04_07_RaceOrderFinal.png).
+- [Task nhận đơn đã hoàn thành](../../evidence/TanPhat/Week_04/W4-TV1-04_08_RaceTaskFinal.png).
+- [Dữ liệu yêu cầu và phản hồi](../../evidence/TanPhat/Week_04/W4-TV1-04_RaceRequestsResponses.json).
+
+#### Đối chiếu bổ sung dữ liệu hai ca timeout đã kiểm thử
+
+- Mã kiểm thử: W4-TC02.
+- Đây là lần đối chiếu bổ sung dữ liệu của các đơn đã kiểm thử ngày 30/10/2026, không phải chạy lại ca timeout mới.
+
+| Ca | Mã đơn | Orders | WorkflowTasks |
+|---|---|---|---|
+| Chờ bắt đầu giao | ORD-3e832b119b6cc9ebe3cecc86 | ACCEPTED, version 2, D001, TIMED_OUT, có workflowEndedAt | ACCEPTED DONE ở version 2. DELIVERING còn READY, chưa commit. |
+| Chờ hoàn tất | ORD-be0dec6579d25293f355a7de | DELIVERING, version 3, D001, TIMED_OUT, có workflowEndedAt | ACCEPTED DONE ở version 2. DELIVERING DONE ở version 3. COMPLETED còn READY, chưa commit. |
+
+- Kết luận: Dữ liệu phù hợp với kết quả giao diện và execution đã ghi nhận trước đó. Timeout không làm tăng version hoặc chuyển tiếp trạng thái nghiệp vụ.
+- Task còn READY không có nghĩa callback vẫn sử dụng được. Hiệu lực yêu cầu đến trễ cần đối chiếu qua kiểm thử riêng.
+
+#### Minh chứng
+
+- [Orders khi chờ bắt đầu giao hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_05B_TimeoutOrder.png).
+- [Tasks khi chờ bắt đầu giao hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_06B_TimeoutTasks.png).
+- [Orders khi chờ hoàn tất hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_05C_TimeoutOrder.png).
+- [Tasks khi chờ hoàn tất hết hạn](../../evidence/TanPhat/Week_04/W4-TV1-03_06C_TimeoutTasks.png).
