@@ -1,0 +1,49 @@
+{
+  "orderId": "ORD-87610c608da45f2e46989b4a",
+  "attempts": [
+    {
+      "actorLabel": "D001",
+      "request": {
+        "action": "updateOrderStatus",
+        "orderId": "ORD-87610c608da45f2e46989b4a",
+        "targetStatus": "ACCEPTED",
+        "expectedVersion": 1,
+        "requestId": "W4-RACE-930db6455bbf497f90a994d1096aced5"
+      },
+      "sentAt": "2026-10-31T18:00:32.509580+00:00",
+      "receivedAt": "2026-10-31T18:00:35.461876+00:00",
+      "response": {
+        "type": "RESPONSE",
+        "requestId": "W4-RACE-930db6455bbf497f90a994d1096aced5",
+        "ok": false,
+        "error": {
+          "code": "CONFLICT"
+        }
+      }
+    },
+    {
+      "actorLabel": "D002",
+      "request": {
+        "action": "updateOrderStatus",
+        "orderId": "ORD-87610c608da45f2e46989b4a",
+        "targetStatus": "ACCEPTED",
+        "expectedVersion": 1,
+        "requestId": "W4-RACE-422f9716b81d44c3a1adf76880c8aed3"
+      },
+      "sentAt": "2026-10-31T18:00:32.509428+00:00",
+      "receivedAt": "2026-10-31T18:00:34.853334+00:00",
+      "response": {
+        "type": "RESPONSE",
+        "requestId": "W4-RACE-422f9716b81d44c3a1adf76880c8aed3",
+        "ok": true,
+        "data": {
+          "submission": "QUEUED",
+          "orderId": "ORD-87610c608da45f2e46989b4a",
+          "step": "ACCEPTED"
+        }
+      }
+    }
+  ],
+  "setupError": null,
+  "note": "Can doi chieu Orders va WorkflowTasks; QUEUED chua phai COMMITTED."
+}
