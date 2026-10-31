@@ -1,0 +1,21 @@
+{
+  "orderId": "ORD-991d39e074d74935c9506d47",
+  "requestId": "W4-FAIL-7eedf6c1e5a2",
+  "stateMachineArn": "arn:aws:states:us-east-1:165662523632:stateMachine:fooddelivery-w4-commit-failure-7eedf6c1e5a2",
+  "executionArn": "arn:aws:states:us-east-1:165662523632:execution:fooddelivery-w4-commit-failure-7eedf6c1e5a2:W4-FAIL-7eedf6c1e5a2",
+  "createdAt": "2026-10-31T18:51:43.891581+00:00",
+  "evaluation": "PASS",
+  "scope": "Commit claim guard and Catch persistence only",
+  "executionStatus": "FAILED",
+  "checks": {
+    "executionFailed": true,
+    "commitRejected": true,
+    "persistenceSucceeded": true,
+    "businessStatusUnchanged": true,
+    "versionUnchanged": true,
+    "workflowFailedPersisted": true,
+    "endedAtPresent": true,
+    "taskNotCommitted": true,
+    "claimOwnerUnchanged": true
+  }
+}
