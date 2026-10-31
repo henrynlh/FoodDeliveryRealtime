@@ -320,3 +320,30 @@ hoặc thông báo luôn được giao đúng một lần.
 - Đây là số liệu sử dụng ngân sách toàn lab được hiển thị tại thời điểm chụp. Chưa có số liệu tách riêng cho dự án hoặc tuần 4, vì vậy không kết luận chi phí thực tế của dự án bằng 0.
 - Thời gian lab tích lũy hiển thị 23 giờ 39 phút, không dùng làm giờ làm việc cá nhân.
 - Minh chứng: [Ngân sách Learner Lab](../../evidence/LeHuy/Week_04/W4-TV2-07_01_LabBudget.png).
+
+### Kiểm thử giao diện khi workflow FAILED do lỗi commit
+
+- Ngày thực hiện: 01/11/2026.
+- Người thực hiện: Nguyễn Lê Huy — TV2 — 24110221.
+- Môi trường: AWS us-east-1, tài khoản 165662523632.
+- Mã đơn: `ORD-991d39e074d74935c9506d47`.
+
+#### Thực hiện và kết quả
+
+- Chạy bản commit_failure_probe.py điều chỉnh Account ID cho môi trường TV2.
+- Script tạo workflow và dữ liệu thử riêng, mô phỏng actor không khớp người giữ claim.
+- Kết quả tự động: evaluation PASS, executionStatus FAILED, toàn bộ checks bằng true.
+- Mở cùng mã đơn trên giao diện khách hàng C001 và tài xế D001.
+- Hai giao diện hiển thị “Luồng xử lý gặp lỗi”.
+- Đơn giữ PLACED, version 1, workflowStatus FAILED và executionStatus FAILED.
+- readySteps rỗng. Ba nút chuyển trạng thái trên tài xế bị khóa.
+- Nhật ký ghi ORDER_TERMINAL, thông báo dừng đọc định kỳ.
+- Kết luận: Đạt trong lần thử này. Giao diện phân biệt lỗi xử lý với trạng thái nghiệp vụ đang chờ nhận đơn.
+- Phạm vi tạo lỗi: kiểm tra actor giữ claim và nhánh Catch lưu lỗi, không đại diện mọi loại lỗi giao dịch.
+
+#### Minh chứng
+
+- [Kết quả script](../../evidence/LeHuy/Week_04/W4-TV2-02_13_CommitFailureProbe.png).
+- [Dữ liệu kết quả](../../evidence/LeHuy/Week_04/W4-TV2-02_CommitFailureResult.json).
+- [Giao diện tài xế](../../evidence/LeHuy/Week_04/W4-TV2-02_14_WorkflowFailedDriver.png).
+- [Giao diện khách hàng](../../evidence/LeHuy/Week_04/W4-TV2-02_15_WorkflowFailedCustomer.png).
