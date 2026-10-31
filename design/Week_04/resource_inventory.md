@@ -1,7 +1,7 @@
 # KIỂM KÊ TÀI NGUYÊN PHỤC VỤ DEMO VÀ BÀN GIAO
 
 - Ngày kiểm kê: 01/11/2026.
-- Người thực hiện: Nguyễn Lê Huy — TV2 — 24110221.
+- Người thực hiện: Nguyễn Lê Huy — MSSV 24110221.
 - AWS Account ID: 165662523632.
 - Region: us-east-1.
 - Phạm vi: các thành phần ứng dụng đã đối chiếu qua AWS Console, chưa phải toàn bộ tài nguyên của tài khoản.

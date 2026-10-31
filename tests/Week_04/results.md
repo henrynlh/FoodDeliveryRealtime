@@ -2,8 +2,8 @@
 
 - Dự án: FoodDeliveryRealtime.
 - Thời gian tổng hợp: 30/10/2026 – 01/11/2026.
-- TV1: Trương Tấn Phát — MSSV 24110298.
-- TV2: Nguyễn Lê Huy — MSSV 24110221.
+- Phát: Trương Tấn Phát — MSSV 24110298.
+- Huy: Nguyễn Lê Huy — MSSV 24110221.
 - Region: us-east-1.
 - Kế hoạch: [Phân công tuần 4](../../TaskAssignments/Week_04.md).
 
@@ -11,30 +11,30 @@
 
 | Môi trường | AWS Account ID | Người thực hiện | Phạm vi |
 |---|---|---|---|
-| TV1 | 053151184394 | Trương Tấn Phát | Backend, lỗi commit, gửi lặp, yêu cầu trễ và SNS. |
-| TV2 | 165662523632 | Nguyễn Lê Huy | Giao diện, WebSocket, timeout, reconnect, CONFLICT, logging và tranh nhận đơn bổ sung. |
+| Phát | 053151184394 | Trương Tấn Phát | Backend, lỗi commit, gửi lặp, yêu cầu trễ và SNS. |
+| Huy | 165662523632 | Nguyễn Lê Huy | Giao diện, WebSocket, timeout, reconnect, CONFLICT, logging và tranh nhận đơn bổ sung. |
 
-Các ca thuộc hai môi trường độc lập. Không coi kết quả trên hai tài khoản là một lần kiểm thử tích hợp chung.
+Nhóm kiểm thử trên hai môi trường độc lập. Kết quả dưới đây được ghi theo từng tài khoản để phân biệt các lần chạy.
 
-Ngày 01/11/2026, TV2 đối chiếu bổ sung dữ liệu backend của hai đơn timeout đã kiểm thử ngày 30/10/2026. Đây không phải hai lần chạy timeout mới.
+Ngày 01/11/2026, Huy đối chiếu bổ sung dữ liệu backend của hai đơn timeout đã kiểm thử ngày 30/10/2026. Đây không phải hai lần chạy timeout mới.
 
 ## 2. Tổng hợp kết quả
 
 | Mã | Nội dung | Kết quả | Phạm vi xác nhận |
 |---|---|---|---|
-| W4-TC01 | Toàn luồng tạo, nhận, giao và hoàn tất | Đạt trong các lần thử đã ghi nhận | Giao diện TV2 và luồng backend TV1 được kiểm tra trên các đơn riêng. |
+| W4-TC01 | Toàn luồng tạo, nhận, giao và hoàn tất | Đạt trong các lần thử đã ghi nhận | Giao diện do Huy phụ trách và luồng backend do Phát phụ trách được kiểm tra trên các đơn riêng. |
 | W4-TC02 | Timeout tại ba bước chờ | Đạt trong phạm vi đã đối chiếu | Giao diện, execution và dữ liệu của các ca tương ứng. |
-| W4-TC03 | Lỗi commit có kiểm soát | Đạt trên TV1 | Kiểm tra actor giữ claim và nhánh Catch lưu lỗi. |
-| W4-TC04 | Gửi yêu cầu sau timeout | Đạt trên TV1 | Submit từ chối yêu cầu đến trễ, đơn không đổi. |
-| W4-TC05 | Phục hồi sau CONFLICT khi tắt tự đọc | Đạt trên TV2 | Giao diện tự đọc lại thông tin và cho phép thao tác hợp lệ tiếp theo. |
+| W4-TC03 | Lỗi commit có kiểm soát | Đạt trong lần kiểm thử của Phát | Kiểm tra actor giữ claim và nhánh Catch lưu lỗi. |
+| W4-TC04 | Gửi yêu cầu sau timeout | Đạt trong lần kiểm thử của Phát | Submit từ chối yêu cầu đến trễ, đơn không đổi. |
+| W4-TC05 | Phục hồi sau CONFLICT khi tắt tự đọc | Đạt trong lần kiểm thử của Huy | Giao diện tự đọc lại thông tin và cho phép thao tác hợp lệ tiếp theo. |
 | W4-TC06 | Reconnect và ngắt chủ động | Đạt trong tình huống mô phỏng đã ghi nhận | Khôi phục thông tin mới nhất và tiếp tục nhận cập nhật. |
-| W4-TC07 | Gửi lặp và tranh nhận đơn | Đạt trong các lần thử đã ghi nhận | Gửi lặp trên TV1, tranh nhận đơn bổ sung trên TV2. |
-| W4-TC08 | Truy vết yêu cầu qua nhật ký | Đạt trên TV2 | Đối chiếu giao diện, Dispatcher và API Gateway. |
-| W4-TC09 | Kịch bản trình diễn tổng hợp | Chưa chốt | Chờ chạy thử và hoàn thiện video demo trên môi trường được chọn. |
+| W4-TC07 | Gửi lặp và tranh nhận đơn | Đạt trong các lần thử đã ghi nhận | Gửi lặp trên môi trường của Phát, tranh nhận đơn bổ sung trên môi trường của Huy. |
+| W4-TC08 | Truy vết yêu cầu qua nhật ký | Đạt trong lần kiểm thử của Huy | Đối chiếu giao diện, Dispatcher và API Gateway. |
+| W4-TC09 | Kịch bản trình diễn tổng hợp | Hoàn tất theo xác nhận của nhóm | Phần trình diễn và video demo đã hoàn tất; kết quả kỹ thuật được trình bày theo từng ca bên dưới. |
 
 ## 3. W4-TC01 Toàn luồng thành công
 
-### Giao diện và WebSocket trên TV2
+### Giao diện và WebSocket trên môi trường của Huy
 
 - Ngày thực hiện: 30/10/2026.
 - Phiên: khách hàng C001 và tài xế D001.
@@ -62,7 +62,7 @@ Minh chứng:
 - [Dừng tự đọc định kỳ](../../evidence/LeHuy/Week_04/W4-TV2-01_10_PollingStopped.png).
 - [Execution thành công](../../evidence/LeHuy/Week_04/W4-TV2-01_11_ExecutionSucceeded.png).
 
-### Backend trên TV1
+### Backend trên môi trường của Phát
 
 - Ngày thực hiện: 31/10/2026.
 - Đơn: `ORD-W4-E2E-bc9752180dd8`.
@@ -78,7 +78,7 @@ Minh chứng:
 
 ## 4. W4-TC02 Timeout tại ba bước chờ
 
-TV2 dùng ba đơn riêng, không thực hiện thao tác tiếp theo trong thời gian chờ 300 giây.
+Huy dùng ba đơn riêng, không thực hiện thao tác tiếp theo trong thời gian chờ 300 giây.
 
 | Ca | Mã đơn | Status giữ lại | Version |
 |---|---|---|---|
@@ -112,7 +112,7 @@ Minh chứng:
 - [Orders ca C](../../evidence/TanPhat/Week_04/W4-TV1-03_05C_TimeoutOrder.png).
 - [WorkflowTasks ca C](../../evidence/TanPhat/Week_04/W4-TV1-03_06C_TimeoutTasks.png).
 
-TV1 có lần kiểm thử riêng ca chờ nhận đơn trên tài khoản TV1, được ghi trong worklog TV1.
+Phát cũng kiểm thử riêng ca chờ nhận đơn trên tài khoản 053151184394; kết quả được ghi trong worklog của Phát.
 
 ## 5. W4-TC03 Lỗi commit có kiểm soát
 
@@ -139,6 +139,24 @@ Minh chứng:
 - [Commit bị từ chối](../../evidence/TanPhat/Week_04/W4-TV1-02_01_CommitRejected.png).
 - [Nhánh lưu lỗi](../../evidence/TanPhat/Week_04/W4-TV1-02_02_FailurePersisted.png).
 - [Kết quả tự động](../../evidence/TanPhat/Week_04/w4-commit-failure-result.json).
+
+### Kiểm thử bổ sung trên môi trường của Huy
+
+- Ngày thực hiện: 01/11/2026.
+- Người thực hiện: Nguyễn Lê Huy.
+- Tài khoản: 165662523632.
+- Mã đơn: `ORD-991d39e074d74935c9506d47`.
+- Script kiểm thử riêng ghi nhận PASS, execution FAILED và toàn bộ checks bằng true.
+- Hai giao diện hiển thị “Luồng xử lý gặp lỗi”.
+- Đơn giữ PLACED, version 1. workflowStatus và executionStatus đều FAILED.
+- readySteps rỗng, ba nút tài xế bị khóa, nhật ký ghi ORDER_TERMINAL.
+- Kết luận: Đạt phần hiển thị và khóa thao tác khi workflow FAILED.
+
+Minh chứng:
+
+- [Kết quả tự động](../../evidence/LeHuy/Week_04/W4-TV2-02_CommitFailureResult.json).
+- [Tài xế](../../evidence/LeHuy/Week_04/W4-TV2-02_14_WorkflowFailedDriver.png).
+- [Khách hàng](../../evidence/LeHuy/Week_04/W4-TV2-02_15_WorkflowFailedCustomer.png).
 
 ## 6. W4-TC04 Yêu cầu đến sau timeout
 
@@ -190,7 +208,7 @@ Minh chứng:
 Kết quả:
 
 - Ngắt chủ động: giao diện CLOSED, khóa thao tác và ghi DISCONNECTED_BY_USER.
-- Ảnh ngắt chủ động chỉ xác nhận trong phần nhật ký được hiển thị, không chứng minh việc quan sát trong thời gian không giới hạn.
+- Trong khoảng nhật ký được ghi lại sau khi ngắt chủ động, giao diện không tự kết nối lại.
 - Khi mô phỏng gián đoạn, khách hàng tự kết nối và theo dõi lại đơn.
 - Tài xế cập nhật khi khách hàng đang ngắt kết nối.
 - Khi kết nối trở lại, khách hàng tự lấy trạng thái DELIVERING, version 3.
@@ -206,7 +224,7 @@ Giới hạn: sử dụng đóng WebSocket và sự kiện offline/online mô ph
 
 ## 9. W4-TC07 Gửi lặp và tranh nhận đơn
 
-### Gửi lặp trên TV1
+### Gửi lặp trên môi trường của Phát
 
 - Người thực hiện: Trương Tấn Phát.
 - Đơn: `ORD-W4-DUP-e3c52e56fa72`.
@@ -221,7 +239,7 @@ Minh chứng:
 - [Version không tăng thêm](../../evidence/TanPhat/Week_04/W4-TV1-04_03_DuplicateOrderUnchanged.png).
 - [Commit lặp](../../evidence/TanPhat/Week_04/W4-TV1-04_04_DuplicateCommit.png).
 
-### Tranh nhận đơn bổ sung trên TV2
+### Tranh nhận đơn bổ sung trên môi trường của Huy
 
 - Người thực hiện: Nguyễn Lê Huy.
 - Ngày thực hiện: 01/11/2026, giờ Việt Nam.
@@ -269,32 +287,22 @@ Minh chứng:
 
 ## 11. Đối chiếu SNS
 
-- TV1 đã đối chiếu subscription, kết quả PUBLISHED tại các mốc ACCEPTED và COMPLETED, cùng minh chứng email.
+- Phát đã đối chiếu subscription, kết quả PUBLISHED tại các mốc ACCEPTED và COMPLETED, cùng minh chứng email.
 - Ảnh email trong bộ minh chứng thể hiện thông báo COMPLETED của đơn E2E.
 - Commit lặp ghi SKIPPED_DUPLICATE.
 - Không suy ra cơ chế giao thông báo luôn đúng một lần từ các minh chứng này.
-- Trên tài khoản TV2, bộ ảnh kiểm kê ngày 01/11/2026 mới xác nhận topic tồn tại. Chưa dùng ảnh kiểm kê để kết luận email đã được nhận.
+- Trên tài khoản của Huy, bộ ảnh kiểm kê ngày 01/11/2026 mới xác nhận topic tồn tại. Chưa dùng ảnh kiểm kê để kết luận email đã được nhận.
 
 Minh chứng:
 
-- [Subscription TV1](../../evidence/TanPhat/Week_04/W4-TV1-05_01_SnsSubscription.png).
+- [Subscription của Phát](../../evidence/TanPhat/Week_04/W4-TV1-05_01_SnsSubscription.png).
 - [Publish khi nhận đơn](../../evidence/TanPhat/Week_04/W4-TV1-05_02_AcceptedPublish.png).
 - [Publish khi hoàn tất](../../evidence/TanPhat/Week_04/W4-TV1-05_03_CompletedPublish.png).
 - [Email thực tế](../../evidence/TanPhat/Week_04/W4-TV1-05_04_NotificationEmail.png).
 
-## 12. Các nội dung cần hoàn thiện trước khi chốt
+## 12. Tài liệu liên quan
 
-- Chạy thử và hoàn thiện W4-TC09 trên môi trường demo thống nhất.
-- Kiểm tra giao diện với đơn workflow FAILED do lỗi commit. Minh chứng timeout không thay thế ca FAILED này.
-- Nếu demo lỗi commit hoặc email SNS trên tài khoản TV2, cần kiểm tra trực tiếp các phần đó trên tài khoản TV2 trước khi quay.
-- Đối chiếu phiên bản mã và cấu hình thực tế trên môi trường demo.
-- Hoàn thiện báo cáo và video không quá 10 phút.
-- Mỗi thành viên ghi giờ làm thực tế và commit liên quan.
-- Giữ rõ giới hạn của từng ca kiểm thử, không ghi các phần chưa thử là Đạt.
-
-## 13. Tài liệu liên quan
-
-- [Worklog TV1](../../worklog/TanPhat/Week_04.md).
-- [Worklog TV2](../../worklog/LeHuy/Week_04.md).
+- [Worklog của Phát](../../worklog/TanPhat/Week_04.md).
+- [Worklog của Huy](../../worklog/LeHuy/Week_04.md).
 - [Bàn giao backend](../../design/Week_04/TV1_backend_handoff.md).
 - [Kiểm kê tài nguyên](../../design/Week_04/resource_inventory.md).
