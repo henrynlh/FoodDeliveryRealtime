@@ -6,6 +6,8 @@
 - Region: us-east-1.
 - Phạm vi: các thành phần ứng dụng đã đối chiếu qua AWS Console, chưa phải toàn bộ tài nguyên của tài khoản.
 
+**Cập nhật ngày 15/11/2026:** Huy đã dọn các tài nguyên dự án trên tài khoản `165662523632`. Kết quả và ảnh trước/sau được ghi trong [worklog dọn tài nguyên](../../worklog/LeHuy/ResourceCleanup.md). Các bảng dưới đây giữ nguyên trạng thái kiểm kê ngày 01/11/2026 để đối chiếu lịch sử.
+
 ## 1. Tài nguyên đã đối chiếu
 
 | Dịch vụ | Tài nguyên | Kết quả quan sát | Phương án hiện tại |
