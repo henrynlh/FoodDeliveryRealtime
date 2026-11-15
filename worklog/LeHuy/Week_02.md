@@ -16,11 +16,11 @@
 - Kết quả: đã cập nhật mã và cấu hình hàm.
 - Phạm vi hoàn thành: triển khai và cấu hình. Chưa kiểm thử lưu bước chờ từ workflow trên tài khoản tích hợp.
 ### Minh chứng
-- [Mã prepare-task đã triển khai](../../evidence/TanPhat/Week_02/Prepare_Code.png)
-- [Biến môi trường](../../evidence/TanPhat/Week_02/Prepare_Environment.png)
-- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/Prepare_Config.png)
-- [Execution role](../../evidence/TanPhat/Week_02/Prepare_Role.png)
-- [Tag của Lambda](../../evidence/TanPhat/Week_02/Prepare_Tags.png)
+- [Mã prepare-task đã triển khai](../../evidence/TanPhat/Week_02/E-TV1-07_Prepare_Code.png)
+- [Biến môi trường](../../evidence/TanPhat/Week_02/E-TV1-09_Prepare_Environment.png)
+- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/E-TV1-08_Prepare_Config.png)
+- [Execution role](../../evidence/TanPhat/Week_02/E-TV1-10_Prepare_Role.png)
+- [Tag của Lambda](../../evidence/TanPhat/Week_02/E-TV1-11_Prepare_Tags.png)
 
 ## Triển khai Lambda submit-transition vào môi trường tích hợp
 - Ngày thực hiện: 14/10/2026.
@@ -41,11 +41,11 @@
 - Kết quả: đã Deploy mã và lưu cấu hình.
 - Phạm vi: hoàn thành triển khai, chưa kiểm thử callback trên tài khoản tích hợp.
 ### Minh chứng
-- [Execution role](../../evidence/TanPhat/Week_02/Submit_Role.png)
-- [Mã nguồn đã triển khai](../../evidence/TanPhat/Week_02/Submit_Code.png)
-- [Biến môi trường](../../evidence/TanPhat/Week_02/Submit_Environment.png)
-- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/Submit_Config.png)
-- [Tag Lambda](../../evidence/TanPhat/Week_02/Submit_Tags.png)
+- [Execution role](../../evidence/TanPhat/Week_02/E-TV1-17_Submit_Role.png)
+- [Mã nguồn đã triển khai](../../evidence/TanPhat/Week_02/E-TV1-14_Submit_Code.png)
+- [Biến môi trường](../../evidence/TanPhat/Week_02/E-TV1-16_Submit_Environment.png)
+- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/E-TV1-15_Submit_Config.png)
+- [Tag Lambda](../../evidence/TanPhat/Week_02/E-TV1-18_Submit_Tags.png)
 
 ## Triển khai Lambda commit-transition vào môi trường tích hợp
 - Ngày thực hiện: 14/10/2026.
@@ -68,11 +68,11 @@
 - Kết quả: đã Deploy mã và lưu cấu hình hai bảng.
 - Phạm vi: chưa kiểm thử commit qua workflow và chưa kiểm thử SNS trong môi trường tích hợp.
 ### Minh chứng
-- [Execution role](../../evidence/TanPhat/Week_02/Commit_Role.png)
-- [Mã nguồn đã triển khai](../../evidence/TanPhat/Week_02/Commit_Code.png)
-- [Biến môi trường](../../evidence/TanPhat/Week_02/Commit_Environment.png)
-- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/Commit_Config.png)
-- [Tag Lambda](../../evidence/TanPhat/Week_02/Commit_Tags.png)
+- [Execution role](../../evidence/TanPhat/Week_02/E-TV1-26_Commit_Role.png)
+- [Mã nguồn đã triển khai](../../evidence/TanPhat/Week_02/E-TV1-22_Commit_Code.png)
+- [Biến môi trường](../../evidence/TanPhat/Week_02/E-TV1-24_Commit_Environment.png)
+- [Bộ nhớ và timeout](../../evidence/TanPhat/Week_02/E-TV1-23_Commit_Config.png)
+- [Tag Lambda](../../evidence/TanPhat/Week_02/E-TV1-27_Commit_Tags.png)
 
 ## Dựng SNS và cấu hình thông báo cho Lambda commit
 - Ngày thực hiện: 14/10/2026.
@@ -93,12 +93,12 @@
 - Đã bổ sung SNS_TOPIC_ARN, giữ nguyên ORDERS_TABLE và WORKFLOW_TASKS_TABLE.
 - Phạm vi: đã kiểm thử SNS Console gửi email. Chưa kiểm thử Lambda commit gửi SNS qua workflow.
 ### Minh chứng
-- [Thông tin topic](../../evidence/TanPhat/Week_02/SNS_Topic.png)
-- [Tag topic](../../evidence/TanPhat/Week_02/SNS_Tags.png)
-- [Subscription đã xác nhận](../../evidence/TanPhat/Week_02/SNS_Subscription.png)
-- [Publish thông báo thử](../../evidence/TanPhat/Week_02/SNS_PublishTest.png)
-- [Email thực nhận](../../evidence/TanPhat/Week_02/SNS_EmailTest.png)
-- [Biến môi trường commit có SNS](../../evidence/TanPhat/Week_02/Commit_Environment_SNS.png)
+- [Thông tin topic](../../evidence/TanPhat/Week_02/E-TV1-32_SNS_Topic.png)
+- [Tag topic](../../evidence/TanPhat/Week_02/E-TV1-34_SNS_Tags.png)
+- [Subscription đã xác nhận](../../evidence/TanPhat/Week_02/E-TV1-33_SNS_Subscription.png)
+- [Publish thông báo thử](../../evidence/TanPhat/Week_02/E-TV1-35_SNS_PublishTest.png)
+- [Email thực nhận](../../evidence/TanPhat/Week_02/E-TV1-36_SNS_EmailTest.png)
+- [Biến môi trường commit có SNS](../../evidence/TanPhat/Week_02/E-TV1-25_Commit_Environment_SNS.png)
 
 ## Triển khai workflow TV1 vào tài khoản tích hợp
 - Ngày thực hiện: 14/10/2026.
@@ -107,7 +107,7 @@
 - Account ID triển khai: 165662523632.
 - Region: us-east-1.
 - Tên state machine: fooddelivery-order-workflow.
-- State machine ARN: arn:aws:sns:us-east-1:165662523632:fooddelivery-order-events.
+- State machine ARN: arn:aws:states:us-east-1:165662523632:stateMachine:fooddelivery-order-workflow.
 - Type: Standard.
 - Execution role: LabRole.
 - QueryLanguage: JSONPath.
@@ -122,9 +122,8 @@
 - Kết quả: đã lưu định nghĩa và cấu hình workflow.
 - Phạm vi: chưa chạy execution và chưa xác nhận luồng nghiệp vụ thành công trên tài khoản tích hợp.
 ### Minh chứng
-- [Cấu hình workflow](../../evidence/TanPhat/Week_02/Workflow_Config.png)
-- [Execution role](../../evidence/TanPhat/Week_02/Workflow_Role.png)
-- [Tag workflow](../../evidence/TanPhat/Week_02/Workflow_Tags.png)
+- [Cấu hình workflow](../../evidence/TanPhat/Week_02/E-TV1-05_Workflow_Config.png)
+- [Tag workflow](../../evidence/TanPhat/Week_02/E-TV1-06_Workflow_Tags.png)
 
 ## Chuẩn bị dữ liệu kiểm thử workflow tích hợp
 - Ngày thực hiện: 15/10/2026.
@@ -143,10 +142,10 @@
 - Cấu trúc sự kiện: theo mã submit hiện tại của TV1.
 - Phạm vi: tạo đơn thủ công và chuẩn bị sự kiện. Chưa chạy workflow, chưa kiểm thử từ giao diện web.
 ### Minh chứng
-- [Đơn ban đầu PLACED, version 1](../../evidence/TanPhat/Week_02/Integration_Order_Initial.png)
-- [Sự kiện nhận đơn](../../evidence/TanPhat/Week_02/Submit_Event_Accept.png)
-- [Sự kiện bắt đầu giao](../../evidence/TanPhat/Week_02/Submit_Event_Deliver.png)
-- [Sự kiện hoàn tất](../../evidence/TanPhat/Week_02/Submit_Event_Complete.png)
+- [Đơn ban đầu PLACED, version 1](../../evidence/TanPhat/Week_02/E-TV1-40_Integration_Order_Initial.png)
+- [Sự kiện nhận đơn](../../evidence/TanPhat/Week_02/E-TV1-19_Submit_Event_Accept.png)
+- [Sự kiện bắt đầu giao](../../evidence/TanPhat/Week_02/E-TV1-20_Submit_Event_Deliver.png)
+- [Sự kiện hoàn tất](../../evidence/TanPhat/Week_02/E-TV1-21_Submit_Event_Complete.png)
 
 ## Kiểm thử thành công workflow TV1 trên tài khoản tích hợp
 - Ngày thực hiện: 15/10/2026.
@@ -227,7 +226,7 @@
 - Kết quả: đã tải mã và lưu cấu hình.
 - Phạm vi: chưa tích hợp dispatcher vào các route WebSocket và chưa kiểm thử từ trình duyệt.
 ### Minh chứng
-- [Execution role](../../evidence/LeHuy/Week_02/Dispatcher_Role.png)
+- [Execution role](../../evidence/LeHuy/Week_02/fooddelivery-ws-dispatcher.png)
 - [Mã dispatcher](../../evidence/LeHuy/Week_02/Dispatcher_Code.png)
 - [Biến môi trường](../../evidence/LeHuy/Week_02/Dispatcher_Environment.png)
 - [Bộ nhớ và timeout](../../evidence/LeHuy/Week_02/Dispatcher_Config.png)

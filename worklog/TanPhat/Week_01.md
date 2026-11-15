@@ -100,10 +100,10 @@ Thời gian thực hiện: 6-7 tiếng
 ## Step Functions kiểm thử callback
 - Ngày thực hiện: 9/10/2026.
 - Definition: config/TanPhat/Week_01/03_callback.asl.json.
-- Execution ARN: arn:aws:lambda:us-east-1:053151184394:function:fooddelivery-foundation-test.
+- Execution ARN: arn:aws:states:us-east-1:053151184394:execution:MyStateMachine:w1-callback-01.
 - Kết quả: Succeeded.
 - Quyết định điều phối: callback.
 - Phạm vi: self-callback kỹ thuật, chưa là workflow nghiệp vụ.
 
 ### Minh chứng
-- [Trạng thái execution và output callback, không có taskToken.](../../evidence/TanPhat/Week_01/E-TV1-27_SFN_Callback.png)
+- [Trạng thái execution và output callback, không có taskToken.](../../evidence/TanPhat/Week_01/E-TV1-27_SFN_Callback.png.png)
